@@ -1,0 +1,449 @@
+/*
+**********************************************
+* JaMe CPE Coffee Shop System.
+* Ask each customer for a member code (1 Character,5 digits), if not this is a non-member  If the customer enters " -1 ",
+* program will show the end of the day and print the summary member ,non-member ,income ,discount and reduced income by discount .
+* Firstly, program will ask for the type of coffee i.e. Espresso($30), Latte($40), Cappucino($45), Cocoa($35),
+* the size that is Small or Large(It will charge double of price), temperature namely Hot or Cold(it will charge 15%).
+* Finally, program will ask amount of coffee that you bought.
+*
+* Members get a 30% discount on all purchases. When the customer enters the word "NONE" for drink type will print a bill for
+* the table showing each drink ordered, and show price of that drink before discounts, and the final price including discounts.
+*
+* Developed by Siwat Karwlung(JaMe) ID 56070503434
+* Date 27/9/2556
+* Latest update 10/10/2556 9:04 A.M.
+**********************************************
+*/
+#include <stdio.h> /*printf fgets*/
+#include <string.h> /*strcpy strlen*/
+#include <stdlib.h> /*memset calloc malloc realloc*/
+#include <stdbool.h> /*boolean type is 1 bit use less memory*/
+#include <ctype.h> /*isalpha*/
+#include <time.h> /*time_t, struct tm, time, localtime*/
+#include <limits.h> /*USHRT_MAX*/
+
+#define MAX_LEN 32 /*max length of buffer*/
+#define LOOP_TIME 64 /*to clear screen by newline feed 64 time*/
+
+#define MAX_COFFEE 100 /*max coffee order time for 1 customer*/
+/*********************************************
+* This function clear stdin in standard C
+* input - input from fgets
+* no return
+**********************************************
+*/
+
+/*void clearStdin(char *input)
+	{
+    printf("Please enter to continue...\n");
+    if(input[MAX_LEN-2] != '\n' && input[MAX_LEN-1] == '\0')
+        {
+        while (getchar() != '\n');
+        }
+	}
+*/
+/*********************************************
+* This function clear screen by for-loop and newline-feed
+* no input
+* no return
+**********************************************
+*/
+
+void clearScreen()
+    {
+    unsigned short i = 0;
+    for(i=0;i<LOOP_TIME;i++)
+        {
+        printf("%c",'\n');/*newline*/
+        }
+    printf("%c",'\r');/*set cursor to beginning of line*/
+    }
+
+/*********************************************
+* This function check input to character
+* input - input string
+* return true if input is character
+*        false if input is not character
+**********************************************
+*/
+bool bCharacter(char *input)
+    {
+    unsigned short i;
+    for(i=0;i<strlen(input);i++) /*use loop to check each character if not alphabetic it will return false*/
+        {
+        if(!isalpha(input[i])) return false;
+        }
+        return true;
+    }
+/*********************************************
+* This function check input to numeric
+* input - input string
+* return true if input is character
+*        false if input is not character
+**********************************************
+*/
+bool bNumeric(char *input)
+    {
+    unsigned short i;
+    for(i=0;i<strlen(input);i++)/*use loop to check each character if not numeric it will return false*/
+        {
+        if(!isdigit(input[i])) return false;
+        }
+        return true;
+    }
+/*********************************************
+* This function ask user a kind of coffee
+* if user enter input which is not coffee
+* it will repeat loop to ask until it correct
+* it always convert input to lower case to check to result
+* return price of coffeee
+**********************************************
+*/
+unsigned short checkCoffee()
+    {
+    char input[MAX_LEN];/*to store text from user*/
+    memset(input,'\0',sizeof(input));/*set text to null*/
+    printf("What would you like sir ?\n");/*ask user coffee*/
+    printf("Espresso ($30), Latte ($40), Cappucino ($45), Cocoa ($35)\n,(NONE to stop buying coffee)\n");
+    fgets(input,sizeof(input),stdin);/*get input from standard input*/
+    sscanf(input,"%[^\n]",input);/*get everything from input except \n(new line)*/
+    /*clearStdin(input);*/
+    unsigned short i;
+    for(i=0;i<strlen(input);i++)/*use loop to check if each character is upper case it will convert to lower case*/
+        {
+        if(isupper(input[i]))
+            {
+            input[i] = tolower(input[i]);
+            }
+        }
+    while((strcmp("espresso",input) != 0) && (strcmp("latte",input) != 0) && (strcmp("cappucino",input) != 0) && (strcmp("cocoa",input) != 0) && strcmp("none",input) != 0)
+        {/*accordingly we have lower case string so we use while loop if user not enter coffee type or each type of coffee are maximum cup it will repeat ask until correct */
+        printf("Please enter only coffee name !(example: cocoa)\n");/*error wrong input not coffee type*/
+        printf("What would you like sir ?\n");
+        printf("Espresso ($30), Latte ($40), Cappucino ($45), Cocoa ($35)\n,(NONE to stop buying coffee)\n");
+        fgets(input,sizeof(input),stdin);
+        sscanf(input,"%[^\n]",input);
+        /*clearStdin(input);*/
+        for(i=0;i<strlen(input);i++)/*use loop to check if each character is upper case it will convert to lower case*/
+            {
+            if(isupper(input[i]))
+                {
+                input[i] = tolower(input[i]);
+                }
+            }
+        }/*it will return price of coffee if user enter correct coffee*/
+        if(strcmp("espresso",input) == 0) return 30;
+        else if(strcmp("latte",input) == 0) return 40;
+        else if(strcmp("cappucino",input) == 0) return 45;
+        else if(strcmp("cocoa",input) == 0) return 35;
+        else if(strcmp("none",input) == 0) return 0;
+        else
+            {
+            }
+    }
+
+/*********************************************
+* This function ask user temperature of coffee
+* if user enter input which is not temperature
+* it will repeat loop to ask until it correct
+* it always convert input to lower case to check to result
+* return false - hot
+*        true - cold
+**********************************************
+*/
+bool checkTemp()
+    {
+    char input[MAX_LEN];/*to store text from user*/
+    memset(input,'\0',sizeof(input));/*set text to null*/
+    printf("What would temperature which you prefer to (Hot or Cold[Charge 15%%]) ?\n");/*ask user temperature*/
+    fgets(input,sizeof(input),stdin);/*get input from standard input*/
+    sscanf(input,"%[^\n]",input);/*get everything from input except \n(new line)*/
+    /*clearStdin(input);*/
+    unsigned short i;
+    for(i=0;i<strlen(input);i++)/*use loop to check if each character is upper case it will convert to lower case*/
+        {
+        if(isupper(input[i]))
+            {
+            input[i] = tolower(input[i]);
+            }
+        }
+    while(!(strcmp("hot",input) == 0 || strcmp("cold",input) == 0))
+        {/*accordingly we have lower case string so we use while loop if user not enter temperature it will repeat ask until correct*/
+        printf("Please enter hot or cold only !(example : hot)\n");
+        printf("What would temperature which you prefer to (Hot or Cold[Charge 15%%]) ?\n");
+        fgets(input,sizeof(input),stdin);
+        sscanf(input,"%[^\n]",input);
+        /*clearStdin(input);*/
+        for(i=0;i<strlen(input);i++)
+            {
+            if(isupper(input[i]))
+                {
+                input[i] = tolower(input[i]);
+                }
+            }/*it will return false when hot & true when cold*/
+        }
+    if(strcmp("hot",input) == 0) return false;
+    else if(strcmp("cold",input) == 0) return true;
+    else
+        {
+        }
+    }
+/*********************************************
+* This function ask user a size of coffee
+* if user enter input which is not size
+* it will repeat loop to ask until it correct
+* it always convert input to lower case to check to result
+* return 1 - small size
+*        2 - big size
+**********************************************
+*/
+unsigned short checkSize()
+    {
+    char input[MAX_LEN];/*to store text from user*/
+    memset(input,'\0',sizeof(input));/*set text to null*/
+    printf("What would size which you prefer to (Small or Large[x2 price]) ?\n");/*ask user size*/
+    fgets(input,sizeof(input),stdin);/*get input from standard input*/
+    sscanf(input,"%[^\n]",input);/*get everything from input except \n(new line)*/
+    /*clearStdin(input);*/
+    unsigned short i;
+    for(i=0;i<strlen(input);i++)/*use loop to check if each character is upper case it will convert to lower case*/
+        {
+        if(isupper(input[i]))
+            {
+            input[i] = tolower(input[i]);
+            }
+        }/*accordingly we have lower case string so we use while loop if user not enter size it will repeat ask until correct*/
+
+    while(!(strcmp("big",input) == 0 || strcmp("small",input) == 0 || strcmp("large",input) == 0 || strcmp("tiny",input) == 0))
+        {
+        printf("Please enter small or large only !(example : small)\n");
+        printf("What would size which you prefer to (Small or Large[x2 price]) ?\n");
+        fgets(input,sizeof(input),stdin);
+        sscanf(input,"%[^\n]",input);
+        /*clearStdin(input);*/
+        for(i=0;i<strlen(input);i++)
+            {
+            if(isupper(input[i]))
+                {
+                input[i] = tolower(input[i]);
+                }
+            }/*it will return 1 when small size & 2 when big*/
+        }
+    if(strcmp("small",input) == 0) return 1;
+    else if(strcmp("tiny",input) == 0) return 1;
+    else if(strcmp("large",input) == 0) return 2;
+    else if(strcmp("big",input) == 0) return 2;
+    else
+        {
+        }
+    }
+/*********************************************
+* This function ask user a amount of coffee
+* if user enter input which is amount
+* it will repeat loop to ask until it correct
+* it always convert input to lower case to check to result
+* return amount of coffee
+**********************************************
+*/
+unsigned short checkAmount()
+    {
+    char input[MAX_LEN];/*to store text from user*/
+    unsigned short convert;/*to store amount*/
+    memset(input,'\0',sizeof(input));/*set text to null*/
+    printf("What would you want amount of it ?:");/*ask user amount*/
+    fgets(input,sizeof(input),stdin);/*get input from standard input*/
+    sscanf(input,"%[^\n]",input);/*get everything from input except \n(new line)*/
+    sscanf(input,"%hu",&convert);/*covert string to short*/
+    /*clearStdin(input);*/
+    while(bNumeric(input) == false || convert < 1)/*use loop to check input is numeric if not it will repeat ask until correct*/
+        {
+        printf("What would you want amount of it ?(Numeric 1-65535 only):");
+        fgets(input,sizeof(input),stdin);
+        sscanf(input,"%[^\n]",input);
+        sscanf(input,"%hu",&convert);/*covert string to short*/
+        /*clearStdin(input);*/
+        }
+    return convert;/*return amount of coffee*/
+    }
+/*********************************************
+* This function ask user member code if user enter -1 it means end of the day
+* return -1 - to stop and show report end of the day
+*         0 - if user enter incorrect member code
+*         1 - if user enter correct member code(example:A29144)
+**********************************************
+*/
+short checkMember()
+    {
+    char input[MAX_LEN];/*to store text from user +1 for if player enter more than 6 character*/
+    memset(input,'\0',sizeof(input));/*set text to null*/
+    printf("Enter you member code[1 character, 5 digits] (\"-1\" to end of the day)\n(Members get a 30%% discount on all purchases):");/*ask user member code*/
+
+    fgets(input,sizeof(input),stdin);/*get input from standard input*/
+    sscanf(input,"%[^\n]",input);/*get everything from input except \n(new line)*/
+    /*clearStdin(input);*/
+    if(strcmp(input,"-1") == 0)/*if input is -1 it will return -1 to end of the day*/
+        {
+        return -1;
+        }
+    if(strlen(input) != 6 || bNumeric(&input[1]) == false || isalpha(input[0]) == 0)/*to check member if user input correct input,this condition will return false (not member)*/
+        {/*non member*/
+        printf("You are not member.\n");
+        return 0;
+        }
+    printf("You are member.\n");
+    return 1;/*return 1 is member*/
+    }
+
+/*********************************************
+* This function is to printf result of the end
+* of the day
+* Argument : member - amount of member
+*          : nonMember - amount of non-member
+*          : totalCharge - sum of coffee price
+*            before discount
+*          : totalDiscount - sum of discount
+*            coffee price
+* No return
+**********************************************
+*/
+
+void printEndoftheday(unsigned short member,unsigned short nonMember,double totalCharge,double totalDiscount)
+    {
+    time_t rawtime;/*variable to show current time*/
+    struct tm * timeinfo;
+    time (&rawtime);/*clear screen*/
+    timeinfo = localtime (&rawtime);
+    clearScreen();/*clear screen*/
+    printf("End of the day !\n",asctime(timeinfo));
+    clearScreen();/*clear screen*/
+    printf("%s","\a\a\a");/*beep sound 3 times*/
+    printf("JaMe's coffee shop report ,Date %s\n",asctime(timeinfo));/*show current time*/
+    printf("******************************************************************\n");
+    printf("Member : %hu person\n",member);/*show the number of member*/
+    printf("Non-member : %hu person\n",nonMember);/*show the number of non-member*/
+    printf("Total charge of coffee : $%.2lf\n",totalCharge);/*show charge of coffee*/
+    printf("Total discount of coffee : $%.2lf\n",totalDiscount);/*show discount of coffeee*/
+    printf("Grand total :$%.2lf\n",totalCharge-totalDiscount);/*show grand total*/
+    printf("******************************************************************\n");
+    }
+
+/*********************************************
+* This function is to bill for 1 customer
+* Argument : coffeeTime - how many time that user bought coffee
+*          : member - amount of member
+*          : nonMember - amount of non-member
+*          : totalCharge - sum of coffee price
+*            before discount
+*          : totalDiscount - sum of discount
+*            coffee price
+* No return
+**********************************************
+*/
+
+void printBill(unsigned short coffeeTime,unsigned short *coffeeCustomer,unsigned short *sizeCustomer,unsigned short *temperatureCustomer,unsigned short *amountCustomer,double *priceCoffee,double *priceCoffeeDiscount,double customerCharge,double customerDiscount)
+    {
+    unsigned short j;/*to order and show the result coffee*/
+    char *coffeeDatabase[] = {"Espresso","Latte","Cappucino","Cocoa"};/*for show coffee in string by subscript*/
+    char *temperatureDatabase[] = {"Hot","Cold"};/*for show temperature in string by subscript*/
+    char *sizeDatabase[] = {"Small","Large"};/*for show size in string by subscript*/
+    time_t rawtime;/*variable to show current time*/
+    struct tm * timeinfo;
+    time (&rawtime);
+    timeinfo = localtime (&rawtime);
+    printf("Customer bill, Date %s\n",asctime(timeinfo));/*show current time*/
+    printf("******************************************************************\n");
+    /*show each coffee cup, price before discount,discount price and price after discount*/
+    for(j=0;j<coffeeTime;j++)
+        {
+        printf("Drink type %s :\tSize: %s\tTemperature: %s\tAmount: %hu cup\nFull price: $%.2lf\tDiscount price: $%.2lf\nPrice after discount: $%.2lf\n\n"
+        ,coffeeDatabase[coffeeCustomer[j]],sizeDatabase[sizeCustomer[j]],temperatureDatabase[temperatureCustomer[j]],amountCustomer[j],priceCoffee[j],priceCoffeeDiscount[j],priceCoffee[j]-priceCoffeeDiscount[j]);
+        }
+    printf("******************************************************************\n");
+    /*show total price with discount,discount price and price after discount*/
+    printf("Grand total without discount : $%.2lf\n",customerCharge);
+    printf("Total discount :$%.2lf\n",customerDiscount);
+    printf("Final total:$%.2lf\n",customerCharge-customerDiscount);
+    }
+
+/*********************************************
+* This function is mainly to do everything such as call another function
+* give a result such as bill and report
+* count member and non-member
+**********************************************
+*/
+void askMemberCoffee()
+    {
+    unsigned short coffeeCustomer[MAX_COFFEE],temperatureCustomer[MAX_COFFEE],sizeCustomer[MAX_COFFEE],amountCustomer[MAX_COFFEE];/*each ordered information of each coffee for 1 customer*/
+    double priceCoffee[MAX_COFFEE],priceCoffeeDiscount[MAX_COFFEE]; /* to store price before discount and price after discount each time*/
+    unsigned short i=0;/*to order each coffee from 1 customer & to show order coffee respectively*/
+    double customerCharge = 0,customerDiscount = 0; /*sum of expense of each customer and discount */
+    double totalCharge = 0,totalDiscount = 0; /*result end of the day*/
+    unsigned short member = 0,nonMember = 0; /*count member and non-member*/
+    short bDiscount = 0; /*status to check member to calculate discount price*/
+    float temperature = 1; /*status to check temperature to calcualte price*/
+    unsigned short coffee = 0; /* store price coffee to calculate*/
+    while((bDiscount = checkMember()) != -1)/* ask member code until member type "-1" to show result end of the day*/
+        {
+        if(bDiscount == 1)
+            {
+            member++;/*count member*/
+            }
+        else
+            {
+            nonMember++;/*count non-member*/
+            }
+        while((coffee = checkCoffee()) != 0 && i < MAX_COFFEE)/*ask member a coffee type until type ""NONE* to show bill*/
+            {
+            sizeCustomer[i] = checkSize();/*ask member a size of coffee*/
+            temperatureCustomer[i] = checkTemp();/*ask member a temperature of coffee*/
+            while((amountCustomer[i] = checkAmount()) > USHRT_MAX)
+                {/*this loop will ask user amount until coffect input*/
+                printf("You can enter amount less than or equal to %d from your buying.\n",USHRT_MAX);
+                amountCustomer[i] = checkAmount();
+                }
+            if(coffee == 30) coffeeCustomer[i] = 0;/*in function coffee,it will return the price, so we need to store value in subscript to show in string because we have coffeeDatabase in printBill function*/
+            else if(coffee = 40) coffeeCustomer[i] = 1;
+            else if(coffee = 45) coffeeCustomer[i] = 2;
+            else if(coffee = 35) coffeeCustomer[i] = 3;
+            else { }
+            if(temperatureCustomer[i] == true)
+                {
+                temperature = 1.15;/*if cold charge 15%*/
+                }
+            else
+                {
+                temperature = 1.0;/*if hot no charge*/
+                }
+            if(bDiscount == 1)/*if member, store discount each coffee discount price*/
+                {
+
+                priceCoffeeDiscount[i] += coffee*sizeCustomer[i]*amountCustomer[i]*0.3*temperature;
+                customerDiscount += coffee*sizeCustomer[i]*amountCustomer[i]*0.3*temperature;/*store sum of price discount*/
+                }
+            else
+                {
+                priceCoffeeDiscount[i] = 0.0;
+                }
+            priceCoffee[i] += coffee*sizeCustomer[i]*amountCustomer[i]*temperature;/*store each coffee price before discount*/
+            customerCharge += coffee*sizeCustomer[i]*amountCustomer[i]*temperature;/*store sum of price before discount*/
+            sizeCustomer[i] --;/* generally,it is 2 or 1,we use 2,1 for calculate buy subscript to show string start at 0 ,so decreasing for using in show table for subscript the sizeDatabase array*/
+            i++;/*count coffee in each time*/
+            }
+        printBill(i,coffeeCustomer,sizeCustomer,temperatureCustomer,amountCustomer,priceCoffee,priceCoffeeDiscount,customerCharge,customerDiscount);/*printf bill for 1 customer*/
+        totalCharge += customerCharge;/*add customer price to sum of charge of the day*/
+        totalDiscount += customerDiscount;/*add customer discount price to sum of discount of the day*/
+        customerCharge = 0; customerDiscount = 0;/*Reset all variable to get new customer*/
+        memset(coffeeCustomer,0,sizeof(coffeeCustomer)); memset(sizeCustomer,0,sizeof(sizeCustomer));
+        memset(temperatureCustomer,0,sizeof(temperatureCustomer)); memset(amountCustomer,0,sizeof(amountCustomer));
+        i=0;
+        }
+    printEndoftheday(member,nonMember,totalCharge,totalDiscount);
+    }
+
+void main()
+    {
+    clearScreen();/*clear screen*/
+    printf("Welcome To JaMe Coffee Shop\a\a\a\a\a\a\a\a\a\a\a\n");
+    askMemberCoffee();
+    }
